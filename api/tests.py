@@ -1,12 +1,15 @@
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
-from api.views import Detail_Table,List_Table
+from api.views import Detail_Table,List_Table,D_Cities_Create
 import json
 
 
 factory = APIRequestFactory()
-req = factory.get('Detail/')
+
+
+# region test Detail 
 view = Detail_Table.as_view()
+req = factory.get('Detail/')
 
 li_res_tg = view(req, table="licence", pk='605_F_1_4_2021-01-01_1001_CSZ')
 li_res_tg.render()
@@ -33,15 +36,26 @@ cl_res_git.render()
 
 cl_res_gip = view(req, table="club", pk='invalid_pk')
 cl_res_gip.render()
+# endregion
 
-req = factory.get('List/',{'table': 'Club'})
+# region test List
 view = List_Table.as_view()
 
+req = factory.get('List/',{'table': 'Club'})
 cl_res_ndl = view(req)
 
 req = factory.get('List/',{'table': 'Licence'})
 li_res_ndl = view(req)
+# endregion
 
+# region test delete City
+view = D_Cities_Create.as_view()
+req = factory.delete('create_city/')
+
+cy_res_d = view(req, postal_code='18000')
+cy_res_d.render()
+cy_json_res_d = json.loads(cy_res_d.content)
+# endregion
 
 class TestLicence(TestCase):
     def setUp(self):
@@ -105,3 +119,12 @@ class TestClub(TestCase):
     def test_nombre_de_lignes(self):
         self.assertEqual(cl_res_ndl.status_code, 200)
         self.assertEqual(cl_res_ndl.data['nombre_de_lignes'], 11000)
+
+
+class TestCity(TestCase):
+    def setUp(self):
+        pass
+    
+    def test_delete_city(self):
+        self.assertEqual(cy_res_d.status_code, 204)
+        
