@@ -18,7 +18,7 @@ from django.urls import path
 from api.views import Detail_Table,List_Table,D_Date_Create,D_Cities_Create,D_Departement_Update
 
 urlpatterns = [
-    path('List/', List_Table.as_view(), name='list-table'),
+    path('List/', List_Table.as_view(), name='list-table',),
     path('Detail/<str:table>/<str:pk>/', Detail_Table.as_view(), name='detail-tables'),
 
     path('create_date/', D_Date_Create.as_view(), name='create-date'),

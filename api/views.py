@@ -3,17 +3,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import generics
 from polls.models import D_AgeGRP,D_Date,D_Federation,D_Departement,D_Sex,D_Type,D_City,F_Licence,F_Club
 from api.serializers import F_Club_Serializer, F_Licence_Serializer,D_AgeGRP_Serializer,D_Date_Serializer,D_Federation_Serializer,D_Departement_Serializer,D_Sex_Serializer,D_Type_Serializer,D_City_Serializer
 
+
+
 class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         table = self.kwargs['table']
         serializer_class = None
-        
+
         if table == 'date':
             serializer_class = D_Date_Serializer
         elif table == 'agegrp':
@@ -32,7 +38,7 @@ class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
             serializer_class = F_Club_Serializer
         else:
             serializer_class = None
-        
+
         return serializer_class
 
     def get_queryset(self):
@@ -75,6 +81,9 @@ class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
 
 
 class List_Table(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def get(self, request, format=None):
         table = self.request.query_params.get('table', None)
         match table:
@@ -124,6 +133,9 @@ class List_Table(APIView):
 
 
 class D_Date_Create(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def post(self, request, format=None):
         serializer = D_Date_Serializer(data=request.data)
         if serializer.is_valid():
@@ -132,6 +144,9 @@ class D_Date_Create(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class D_Cities_Create(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def get(self, request, postal_code=None):
         """Récupère les détails d'une ville en fonction du code postal."""
         queryset = D_City.objects.filter(postal_code=postal_code).first()
@@ -194,6 +209,9 @@ class D_Cities_Create(APIView):
             return Response({'message': f"Le code postal {postal_code} n'a pas été trouvé."}, status=status.HTTP_404_NOT_FOUND)
 
 class D_Departement_Update(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def get(self, request, pk=None):
         """Récupère les détails d'une ville en fonction du code postal."""
         queryset = D_Departement.objects.filter(pk_depart=pk).first()
