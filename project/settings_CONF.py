@@ -127,7 +127,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-DOMAIN = "http://localhost"
-PORT = "8000"
-API_KEY = 'Token 3314c1a1e2dcf8fc789f1b76fb50d391b9b16895'

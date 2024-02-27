@@ -3,17 +3,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import generics
-from polls.models import D_AgeGRP,D_Date,D_Federation,D_Departement,D_Sex,D_Type,F_Licence,F_Club
-from api.serializers import F_Club_Serializer, F_Licence_Serializer,D_AgeGRP_Serializer,D_Date_Serializer,D_Federation_Serializer,D_Departement_Serializer,D_Sex_Serializer,D_Type_Serializer
+from polls.models import D_AgeGRP,D_Date,D_Federation,D_Departement,D_Sex,D_Type,D_City,F_Licence,F_Club
+from api.serializers import F_Club_Serializer, F_Licence_Serializer,D_AgeGRP_Serializer,D_Date_Serializer,D_Federation_Serializer,D_Departement_Serializer,D_Sex_Serializer,D_Type_Serializer,D_City_Serializer
+
+
 
 class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         table = self.kwargs['table']
         serializer_class = None
-        
+
         if table == 'date':
             serializer_class = D_Date_Serializer
         elif table == 'agegrp':
@@ -32,7 +38,7 @@ class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
             serializer_class = F_Club_Serializer
         else:
             serializer_class = None
-        
+
         return serializer_class
 
     def get_queryset(self):
@@ -75,6 +81,9 @@ class Detail_Table(generics.RetrieveUpdateDestroyAPIView):
 
 
 class List_Table(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def get(self, request, format=None):
         table = self.request.query_params.get('table', None)
         match table:
@@ -124,6 +133,9 @@ class List_Table(APIView):
 
 
 class D_Date_Create(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
     def post(self, request, format=None):
         serializer = D_Date_Serializer(data=request.data)
         if serializer.is_valid():
@@ -131,3 +143,98 @@ class D_Date_Create(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class D_Cities_Create(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
+    def get(self, request, postal_code=None):
+        """Récupère les détails d'une ville en fonction du code postal."""
+        queryset = D_City.objects.filter(postal_code=postal_code).first()
+        
+        if queryset is not None:
+            serializer = D_City_Serializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'message': f"Le code postal {postal_code} n'a pas été trouvé."}, status=status.HTTP_404_NOT_FOUND)
+    
+    def post(self, request, postal_code=None):
+        serializer = D_City_Serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, postal_code=None):
+        """_summary_
+        """
+        queryset = D_City.objects.filter(postal_code=postal_code).first()
+        
+        if queryset is not None:
+            
+            serializer = D_City_Serializer(queryset, request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response(data= {'message': f"postal_code {postal_code} not found."})
+
+    def patch(self, request, postal_code=None):
+        """_summary_
+        """
+        queryset = D_City.objects.filter(postal_code=postal_code).first()
+        
+        if queryset is not None:
+            
+            serializer = D_City_Serializer(queryset, request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response(data= {'message': f"postal_code {postal_code} not found."})
+
+    def delete(self, request, postal_code=None):
+        """Supprime une ville en fonction du code postal."""
+        queryset = D_City.objects.filter(postal_code=postal_code).first()
+        
+        if queryset is not None:
+            queryset.delete()
+            return Response({'message': f"La ville avec le code postal {postal_code} a été supprimée."}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'message': f"Le code postal {postal_code} n'a pas été trouvé."}, status=status.HTTP_404_NOT_FOUND)
+
+class D_Departement_Update(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk=None):
+        """Récupère les détails d'une ville en fonction du code postal."""
+        queryset = D_Departement.objects.filter(pk_depart=pk).first()
+        
+        if queryset is not None:
+            serializer = D_Departement_Serializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'message': f"Le code postal {pk} n'a pas été trouvé."}, status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self, request, pk=None):
+        """_summary_
+        """
+        queryset = D_Departement.objects.filter(pk_depart=pk).first()
+        
+        if queryset is not None:
+            
+            serializer = D_Departement_Serializer(queryset, request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response(data= {'message': f"departement {pk} not found."})
